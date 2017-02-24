@@ -14,12 +14,18 @@ public class Exercise8 implements IExercise8 {
 		}
 
 		// Iterate data
+		double total = 0.0;
 		List<HMMDataStore<DiceRoll, DiceType>> stores = HMMDataStore.loadDiceFiles(trainingFiles);
 		for (HMMDataStore<DiceRoll, DiceType> store : stores) {
 			// Final probability calculations
 			List<DiceType> hidden = store.hiddenSequence;
 			DiceType endState = hidden.get(hidden.size() - 1);
 			endProbs.put(endState, endProbs.get(endState) + 1);
+			++total;
+		}
+
+		for (DiceType type : DiceType.values()) {
+			endProbs.put(type, endProbs.get(type) / total);
 		}
 
 		return endProbs;
@@ -106,7 +112,7 @@ public class Exercise8 implements IExercise8 {
 		List<DiceType> path = new ArrayList<>();
 		DiceType currentState = finalState;
 		path.add(currentState);
-		for (int t = observedSequence.size() - 1; t >= 0; --t) {
+		for (int t = observedSequence.size() - 2; t >= 0; --t) {
 			currentState = backtrackPath.get(t).get(currentState);
 			path.add(currentState);
 		}
@@ -160,7 +166,7 @@ public class Exercise8 implements IExercise8 {
 	
 	public double fOneMeasure(Map<List<DiceType>, List<DiceType>> true2PredictedMap) {
 		double p = precision(true2PredictedMap);
-		double r = precision(true2PredictedMap);
+		double r = recall(true2PredictedMap);
 		return 2 * p * r / (p + r);
 	}
 }
